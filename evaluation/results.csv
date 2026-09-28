@@ -1,0 +1,11 @@
+Resume,JD,ActualLabel,PredictedLabel,SimilarityScore
+resume1.pdf,jd1.txt,1,1,80.85
+resume2.pdf,jd2.txt,1,1,74.8
+resume3.pdf,jd3.txt,0,1,73.55
+resume4.pdf,jd4.txt,0,1,73.67
+resume5.pdf,jd5.txt,1,1,89.39
+resume6.pdf,jd6.txt,1,1,79.04
+resume7.pdf,jd7.txt,0,1,77.54
+resume8.pdf,jd8.txt,1,1,81.44
+resume9.pdf,jd9.txt,0,1,71.99
+resume10.pdf,jd10.txt,1,1,84.17

@@ -1,0 +1,37 @@
+Job Title: Senior UX/UI Designer
+
+Company: DesignFirst Studio
+
+Location: Pune, India
+
+Experience: 3-6 Years
+
+Job Description:
+
+We are looking for a talented Senior UX/UI Designer to create beautiful, intuitive user experiences for our web and mobile applications. You will lead the design process from user research to final implementation.
+
+Responsibilities:
+- Conduct user research, interviews, and usability testing
+- Create wireframes, prototypes, and high-fidelity mockups using Figma
+- Design responsive user interfaces for web and mobile applications
+- Develop and maintain design systems and component libraries
+- Collaborate with product managers and developers to ensure design feasibility
+- Create user journey maps and information architecture diagrams
+- Conduct competitive analysis and stay updated with design trends
+- Present design concepts and rationale to stakeholders
+
+Requirements:
+- Bachelor's degree in Design, HCI, or related field
+- 3+ years of experience in UX/UI design
+- Expert proficiency in Figma, Sketch, or Adobe XD
+- Strong portfolio demonstrating user-centered design process
+- Experience with design systems and component-based design
+- Knowledge of HTML, CSS, and responsive design principles
+- Understanding of accessibility standards (WCAG)
+- Experience with user research methodologies and usability testing
+
+Nice to Have:
+- Experience with motion design and animation (After Effects, Lottie)
+- Knowledge of front-end development (React, Vue.js)
+- Experience with design tokens and design-to-code workflows
+- Familiarity with analytics tools for measuring design impact

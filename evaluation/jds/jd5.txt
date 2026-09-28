@@ -1,0 +1,37 @@
+Job Title: DevOps Engineer
+
+Company: CloudScale Technologies
+
+Location: Hyderabad, India (Remote)
+
+Experience: 3-5 Years
+
+Job Description:
+
+We are seeking a skilled DevOps Engineer to help us build and maintain our cloud infrastructure. You will be responsible for automating deployment pipelines, managing containerized applications, and ensuring system reliability.
+
+Responsibilities:
+- Design and implement CI/CD pipelines using Jenkins, GitLab CI, or GitHub Actions
+- Manage and optimize cloud infrastructure on AWS (EC2, S3, RDS, Lambda)
+- Containerize applications using Docker and orchestrate with Kubernetes
+- Implement infrastructure as code using Terraform and CloudFormation
+- Monitor system performance using Prometheus, Grafana, and ELK stack
+- Automate configuration management using Ansible or Chef
+- Implement security best practices and manage IAM policies
+- Troubleshoot production issues and maintain 99.9% uptime SLA
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of experience in DevOps or Site Reliability Engineering
+- Strong proficiency in Linux administration and shell scripting
+- Experience with Docker, Kubernetes, and container orchestration
+- Hands-on experience with AWS services (EC2, S3, RDS, Lambda, ECS)
+- Knowledge of CI/CD tools (Jenkins, GitLab CI, GitHub Actions)
+- Experience with Infrastructure as Code (Terraform, CloudFormation)
+- Understanding of networking concepts (TCP/IP, DNS, Load Balancing)
+
+Nice to Have:
+- AWS Solutions Architect or DevOps certification
+- Experience with service mesh (Istio, Linkerd)
+- Knowledge of serverless architectures
+- Experience with multi-cloud environments

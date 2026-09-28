@@ -1,0 +1,37 @@
+Job Title: Data Scientist
+
+Company: DataMinds Analytics
+
+Location: Remote
+
+Experience: 3-6 Years
+
+Job Description:
+
+We are seeking an experienced Data Scientist to join our analytics team. You will work on building machine learning models, analyzing large datasets, and delivering actionable insights to drive business decisions.
+
+Responsibilities:
+- Develop and deploy machine learning models for classification, regression, and clustering tasks
+- Perform exploratory data analysis (EDA) on large-scale datasets
+- Build and maintain data pipelines using Python and SQL
+- Create data visualizations and dashboards using Tableau or Power BI
+- Collaborate with stakeholders to define business problems and translate them into data science solutions
+- Conduct A/B testing and statistical analysis
+- Implement deep learning models using TensorFlow or PyTorch
+- Write research papers and present findings to technical and non-technical audiences
+
+Requirements:
+- Master's degree in Statistics, Mathematics, Computer Science, or related field
+- 3+ years of experience in data science or machine learning
+- Strong proficiency in Python, NumPy, Pandas, and Scikit-learn
+- Experience with deep learning frameworks (TensorFlow, PyTorch)
+- Solid understanding of statistical modeling and hypothesis testing
+- Experience with SQL and database management
+- Knowledge of natural language processing (NLP) techniques
+- Familiarity with cloud platforms (AWS SageMaker, Google AI Platform)
+
+Nice to Have:
+- PhD in a quantitative field
+- Experience with Apache Spark and big data technologies
+- Knowledge of MLOps and model deployment pipelines
+- Published research in machine learning conferences

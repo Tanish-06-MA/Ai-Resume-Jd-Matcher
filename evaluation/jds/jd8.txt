@@ -1,0 +1,37 @@
+Job Title: Senior Backend Developer
+
+Company: FinTech Solutions Ltd.
+
+Location: Bangalore, India
+
+Experience: 4-7 Years
+
+Job Description:
+
+We are hiring a Senior Backend Developer to build and maintain high-performance backend systems for our financial technology platform. You will work on designing microservices architecture and building scalable APIs.
+
+Responsibilities:
+- Design and develop microservices using Java and Spring Boot
+- Build RESTful and GraphQL APIs for web and mobile applications
+- Design and optimize database schemas using PostgreSQL and Redis
+- Implement message queuing systems using Kafka or RabbitMQ
+- Write comprehensive unit and integration tests using JUnit and Mockito
+- Implement security features including OAuth2 and JWT authentication
+- Conduct code reviews and mentor junior developers
+- Collaborate with DevOps team for CI/CD pipeline management
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 4+ years of experience in backend development with Java
+- Strong proficiency in Spring Boot, Spring Security, and Spring Data
+- Experience with relational databases (PostgreSQL, MySQL) and ORM frameworks
+- Knowledge of microservices architecture patterns
+- Experience with message brokers (Kafka, RabbitMQ)
+- Familiarity with Docker and container deployment
+- Understanding of design patterns and SOLID principles
+
+Nice to Have:
+- Experience with reactive programming (Spring WebFlux)
+- Knowledge of event-driven architecture
+- Experience with Elasticsearch for search functionality
+- AWS or Azure cloud certification
