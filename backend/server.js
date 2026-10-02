@@ -31,11 +31,11 @@ app.get("/health", (req, res) => {
 });
 
 
-app.get("/check-key", (req, res) => {
-    res.json({
-        key: process.env.HF_API_KEY
-    });
-});
+// app.get("/check-key", (req, res) => {
+//     res.json({
+//         key: process.env.HF_API_KEY
+//     });
+// });
 
 
 // Start server
