@@ -32,15 +32,14 @@ function Signup() {
                 }
             );
 
-            alert("Signup Successful");
-
+            setError("");
             navigate("/");
 
         } catch (error) {
 
-            console.error(error);
-
-            setError("Signup failed. Please try again.");
+            setError(error.response?.data?.message || (error.code === "ERR_NETWORK"
+                ? "Cannot reach the server. Check the API URL and backend status."
+                : "Signup failed. Please try again."));
 
         } finally {
             setLoading(false);

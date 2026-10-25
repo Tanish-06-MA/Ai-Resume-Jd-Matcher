@@ -78,7 +78,7 @@ export function generatePDFReport(data) {
         startY: y,
         head: [["Metric", "Score"]],
         body: [
-            ["Semantic Match Score", `${data.matchScore || 0}%`],
+            [data.matchMethod === "local-text-overlap" ? "Text Overlap Score" : "Semantic Match Score", `${data.matchScore || 0}%`],
             ["Skill Match Percentage", `${data.skillMatchPercent || 0}%`],
             ["Overall Match Score", `${data.overallScore || 0}%`],
             ["ATS Compatibility Score", `${data.atsScore || 0}%`],

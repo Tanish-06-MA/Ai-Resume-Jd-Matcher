@@ -21,28 +21,17 @@ function Dashboard() {
     const [statsLoading, setStatsLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // Fetch dashboard analytics on mount
     useEffect(() => {
-        fetchStats();
-    }, []);
-
-    const fetchStats = async () => {
-        try {
-            const response = await axiosInstance.get(
-                "/analysis/dashboard-stats",
-                {
-                    headers: {
-                        Authorization: localStorage.getItem("token")
-                    }
-                }
-            );
+        axiosInstance.get("/analysis/dashboard-stats", {
+            headers: { Authorization: localStorage.getItem("token") }
+        }).then((response) => {
             setStats(response.data);
-        } catch (err) {
-            console.error("Failed to load stats:", err);
-        } finally {
+        }).catch((err) => {
+            console.error("Failed to load dashboard stats:", err.message);
+        }).finally(() => {
             setStatsLoading(false);
-        }
-    };
+        });
+    }, []);
 
     const handleDrag = (e) => {
         e.preventDefault();
@@ -122,7 +111,6 @@ function Dashboard() {
                 }
             );
         } catch (error) {
-            console.error(error);
             const msg = error.response?.data?.message || "Analysis failed. Please try again.";
             setError(msg);
         } finally {

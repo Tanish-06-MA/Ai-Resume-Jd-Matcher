@@ -13,35 +13,16 @@ function History() {
     const navigate = useNavigate();
 
     useEffect(() => {
-
-        fetchHistory();
-
-    }, []);
-
-    const fetchHistory = async () => {
-
-        try {
-
-            const response = await axiosInstance.get(
-                "/analysis/history",
-                {
-                    headers: {
-                        Authorization: localStorage.getItem("token")
-                    }
-                }
-            );
-
+        axiosInstance.get("/analysis/history", {
+            headers: { Authorization: localStorage.getItem("token") }
+        }).then((response) => {
             setHistory(response.data);
-
-        } catch (error) {
-
-            console.error(error);
-
-        } finally {
+        }).catch((error) => {
+            console.error("Failed to load analysis history:", error.message);
+        }).finally(() => {
             setLoading(false);
-        }
-
-    };
+        });
+    }, []);
 
     const getScoreColor = (s) => {
         if (s >= 70) return 'text-success bg-success/15 border-success/20';
@@ -65,6 +46,7 @@ function History() {
         navigate("/results", {
             state: {
                 matchScore: item.score ?? 0,
+                matchMethod: item.matchMethod ?? "semantic-embedding",
                 skillMatchPercent: item.skillMatchPercent ?? 0,
                 overallScore: item.overallScore ?? item.score ?? 0,
                 resumeSkills: item.resumeSkills ?? [],

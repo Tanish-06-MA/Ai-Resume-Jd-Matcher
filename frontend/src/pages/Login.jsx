@@ -32,15 +32,13 @@ function Login() {
 
             localStorage.setItem("token", response.data.token);
 
-            console.log("Token Saved Successfully");
-
             navigate("/dashboard");
 
         } catch (error) {
 
-            console.error(error);
-
-            setError("Invalid email or password. Please try again.");
+            setError(error.response?.data?.message || (error.code === "ERR_NETWORK"
+                ? "Cannot reach the server. Check the API URL and backend status."
+                : "Invalid email or password. Please try again."));
 
         } finally {
             setLoading(false);

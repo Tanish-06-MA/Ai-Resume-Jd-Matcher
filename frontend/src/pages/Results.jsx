@@ -11,6 +11,22 @@ import Button from "../components/Button";
 import ProgressBar from "../components/ProgressBar";
 import { generatePDFReport } from "../utils/generatePDF";
 
+function CollapsibleSection({ title, icon: Icon, sectionKey, children, defaultOpen = true, expandedSections, onToggle }) {
+    const isOpen = expandedSections[sectionKey] !== undefined ? expandedSections[sectionKey] : defaultOpen;
+    return (
+        <Card className="mb-6 animate-slide-up" padding="none">
+            <button onClick={() => onToggle(sectionKey)} className="w-full flex items-center justify-between p-6 cursor-pointer group">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-3">
+                    {Icon && <Icon className="w-5 h-5 text-accent" />}
+                    {title}
+                </h3>
+                {isOpen ? <ChevronUp className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" /> : <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />}
+            </button>
+            {isOpen && <div className="px-6 pb-6 animate-fade-in">{children}</div>}
+        </Card>
+    );
+}
+
 function Results() {
 
     const location = useLocation();
@@ -18,28 +34,10 @@ function Results() {
     const [animatedScore, setAnimatedScore] = useState(0);
     const [expandedSections, setExpandedSections] = useState({});
 
-    if (!location.state) {
-
-        return (
-
-            <div className="min-h-screen bg-background pt-24 flex items-center justify-center px-4">
-                <Card className="max-w-md w-full text-center animate-fade-in" padding="lg">
-                    <AlertTriangle className="w-16 h-16 text-warning mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-white mb-2">No Analysis Data Found</h2>
-                    <p className="text-gray-400 mb-6">Please analyze a resume first.</p>
-                    <Button onClick={() => navigate("/dashboard")} icon={ArrowLeft}>
-                        Go to Dashboard
-                    </Button>
-                </Card>
-            </div>
-
-        );
-
-    }
-
-    const data = location.state;
+    const data = location.state || {};
 
     const matchScore = data.matchScore ?? data.score ?? 0;
+    const matchMethod = data.matchMethod ?? "semantic-embedding";
     const skillMatchPercent = data.skillMatchPercent ?? 0;
     const overallScore = data.overallScore ?? matchScore ?? 0;
     const resumeSkills = data.resumeSkills ?? [];
@@ -86,6 +84,19 @@ function Results() {
         return () => clearInterval(timer);
     }, [score]);
 
+    if (!location.state) {
+        return (
+            <div className="min-h-screen bg-background pt-24 flex items-center justify-center px-4">
+                <Card className="max-w-md w-full text-center animate-fade-in" padding="lg">
+                    <AlertTriangle className="w-16 h-16 text-warning mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-white mb-2">No Analysis Data Found</h2>
+                    <p className="text-gray-400 mb-6">Please analyze a resume first.</p>
+                    <Button onClick={() => navigate("/dashboard")} icon={ArrowLeft}>Go to Dashboard</Button>
+                </Card>
+            </div>
+        );
+    }
+
     // SVG circle
     const radius = 80;
     const circumference = 2 * Math.PI * radius;
@@ -101,34 +112,6 @@ function Results() {
 
     const handleDownloadPDF = () => {
         generatePDFReport(location.state);
-    };
-
-    // Collapsible section component
-    const CollapsibleSection = ({ title, icon: Icon, sectionKey, children, defaultOpen = true }) => {
-        const isOpen = expandedSections[sectionKey] !== undefined ? expandedSections[sectionKey] : defaultOpen;
-        return (
-            <Card className="mb-6 animate-slide-up" padding="none">
-                <button
-                    onClick={() => toggleSection(sectionKey)}
-                    className="w-full flex items-center justify-between p-6 cursor-pointer group"
-                >
-                    <h3 className="text-lg font-semibold text-white flex items-center gap-3">
-                        {Icon && <Icon className="w-5 h-5 text-accent" />}
-                        {title}
-                    </h3>
-                    {isOpen ? (
-                        <ChevronUp className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
-                    ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
-                    )}
-                </button>
-                {isOpen && (
-                    <div className="px-6 pb-6 animate-fade-in">
-                        {children}
-                    </div>
-                )}
-            </Card>
-        );
     };
 
     return (
@@ -173,11 +156,16 @@ function Results() {
                             <Target className="w-4 h-4" />
                             {scoreStyle.label}
                         </span>
+                        {matchMethod === "local-text-overlap" && (
+                            <p className="text-xs text-gray-500 -mt-5 mb-6 max-w-lg">
+                                Hugging Face embeddings were unavailable, so this match uses local word and phrase overlap. It may not recognize synonyms.
+                            </p>
+                        )}
 
                         {/* Score Breakdown Progress Bars */}
                         <div className="w-full max-w-lg space-y-5">
                             <ProgressBar
-                                label="Semantic Score"
+                                label={matchMethod === "local-text-overlap" ? "Text Overlap" : "Semantic Score"}
                                 value={semanticScore}
                                 color="blue"
                                 size="md"
@@ -203,7 +191,7 @@ function Results() {
 
                 {/* ──────── Overall AI Feedback (FEATURE 1) ──────── */}
                 {overallFeedback && (
-                    <CollapsibleSection title="Overall AI Feedback" icon={Sparkles} sectionKey="feedback">
+                    <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="Overall AI Feedback" icon={Sparkles} sectionKey="feedback">
                         <div className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/10 rounded-xl p-5">
                             <p className="text-gray-300 text-sm leading-relaxed">
                                 {overallFeedback}
@@ -213,7 +201,7 @@ function Results() {
                 )}
 
                 {/* ──────── Matched Skills (FEATURE 2) ──────── */}
-                <CollapsibleSection title="Skills Analysis" icon={CheckCircle} sectionKey="skills">
+                <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="Skills Analysis" icon={CheckCircle} sectionKey="skills">
                     {/* Resume Skills */}
                     <div className="mb-6">
                         <p className="text-sm text-gray-400 mb-3 flex items-center gap-2">
@@ -301,7 +289,7 @@ function Results() {
 
                 {/* ──────── ATS Compatibility (FEATURE 4) ──────── */}
                 {(atsScore > 0 || atsAnalysis) && (
-                    <CollapsibleSection title="ATS Compatibility (AI Estimate)" icon={Shield} sectionKey="ats">
+                    <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="ATS Compatibility (AI Estimate)" icon={Shield} sectionKey="ats">
                         <div className="bg-amber-500/5 border border-amber-500/10 rounded-lg p-3 mb-5">
                             <p className="text-amber-400 text-xs flex items-center gap-2">
                                 <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
@@ -363,7 +351,7 @@ function Results() {
                 )}
 
                 {/* ──────── Strengths ──────── */}
-                <CollapsibleSection title="Strengths" icon={TrendingUp} sectionKey="strengths">
+                <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="Strengths" icon={TrendingUp} sectionKey="strengths">
                     {strengths && strengths.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                             {strengths.map((item, index) => (
@@ -381,7 +369,7 @@ function Results() {
                 </CollapsibleSection>
 
                 {/* ──────── Weaknesses ──────── */}
-                <CollapsibleSection title="Weaknesses" icon={AlertTriangle} sectionKey="weaknesses">
+                <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="Weaknesses" icon={AlertTriangle} sectionKey="weaknesses">
                     {weaknesses && weaknesses.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                             {weaknesses.map((item, index) => (
@@ -399,7 +387,7 @@ function Results() {
                 </CollapsibleSection>
 
                 {/* ──────── AI Suggestions ──────── */}
-                <CollapsibleSection title="AI Suggestions" icon={Brain} sectionKey="suggestions">
+                <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="AI Suggestions" icon={Brain} sectionKey="suggestions">
                     {suggestions && suggestions.length > 0 ? (
                         <ol className="space-y-3">
                             {suggestions.map((item, index) => (
@@ -421,7 +409,7 @@ function Results() {
 
                 {/* ──────── Interview Questions (FEATURE 5) ──────── */}
                 {interviewQuestions && interviewQuestions.length > 0 && (
-                    <CollapsibleSection title="Interview Questions" icon={MessageSquare} sectionKey="interview" defaultOpen={false}>
+                    <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="Interview Questions" icon={MessageSquare} sectionKey="interview" defaultOpen={false}>
                         <div className="space-y-4">
                             {interviewQuestions.map((q, index) => (
                                 <div key={index} className="bg-white/5 rounded-xl p-4 border border-white/5">
@@ -451,7 +439,7 @@ function Results() {
 
                 {/* ──────── Learning Roadmap (FEATURE 6) ──────── */}
                 {learningRoadmap && (learningRoadmap.highPriority?.length > 0 || learningRoadmap.mediumPriority?.length > 0 || learningRoadmap.lowPriority?.length > 0) && (
-                    <CollapsibleSection title="Learning Roadmap" icon={BookOpen} sectionKey="roadmap" defaultOpen={false}>
+                    <CollapsibleSection expandedSections={expandedSections} onToggle={toggleSection} title="Learning Roadmap" icon={BookOpen} sectionKey="roadmap" defaultOpen={false}>
                         {/* High Priority */}
                         {learningRoadmap.highPriority?.length > 0 && (
                             <div className="mb-6">
