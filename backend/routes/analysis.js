@@ -3,6 +3,8 @@ const upload = require("../config/multer");
 const extractText = require("../utils/extractText");
 const getEmbedding = require("../utils/embeddings");
 const cosineSimilarity = require("../utils/similarity");
+const { matchSkills } = require("../utils/skillMatching");
+const calculateOverallScore = require("../utils/scoring");
 const Analysis = require("../models/Analysis");
 const authMiddleware = require("../middleware/authMiddleware");
 const {
@@ -16,85 +18,6 @@ const {
 
 const router = express.Router();
 
-router.get("/test", (req, res) => {
-    res.send("Analysis Route Working");
-});
-
-// ---------------- Upload Test ----------------
-
-router.post(
-    "/upload",
-    upload.single("resume"),
-    async (req, res) => {
-
-        try {
-
-            const resumeText = await extractText(req.file.path);
-
-            const embedding = await getEmbedding(resumeText);
-
-            console.log("Resume Text:");
-            console.log(resumeText);
-
-            console.log("Embedding Length:", embedding.length);
-
-            res.status(200).json({
-                message: "Embedding Generated Successfully",
-                embeddingLength: embedding.length
-            });
-
-        } catch (error) {
-
-            console.error(error);
-
-            res.status(500).json({
-                message: "Error processing resume"
-            });
-
-        }
-
-    }
-);
-
-// ---------------- Similarity Test ----------------
-
-router.post("/test-score", async (req, res) => {
-
-    try {
-
-        const { resume, jd } = req.body;
-
-        const resumeEmbedding = await getEmbedding(resume);
-
-        const jdEmbedding = await getEmbedding(jd);
-
-        const score = cosineSimilarity(
-            resumeEmbedding,
-            jdEmbedding
-        );
-
-        res.json({
-
-            similarity: score,
-
-            percentage: (score * 100).toFixed(2)
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            message: "Similarity Calculation Failed"
-
-        });
-
-    }
-
-});
-
 // ---------------- Main AI Analysis ----------------
 
 router.post(
@@ -103,6 +26,7 @@ router.post(
     upload.single("resume"),
     async (req, res) => {
 
+        let analysisStage = "input processing";
         try {
 
             const { jd } = req.body;
@@ -112,68 +36,66 @@ router.post(
                 return res.status(400).json({ message: "Please upload a PDF resume." });
             }
 
-            if (!jd || !jd.trim()) {
+            if (typeof jd !== "string" || !jd.trim()) {
                 return res.status(400).json({ message: "Please provide a job description." });
+            }
+            if (jd.length > 20000) {
+                return res.status(413).json({ message: "Job description must be 20,000 characters or fewer." });
             }
 
             // Extract Resume Text
-            const resumeText = await extractText(req.file.path);
+            analysisStage = "PDF text extraction";
+            if (req.file.mimetype !== "application/pdf" || req.file.buffer.subarray(0, 5).toString() !== "%PDF-") {
+                return res.status(400).json({ message: "The uploaded file is not a valid PDF." });
+            }
+
+            const resumeText = await extractText(req.file.buffer);
 
             if (!resumeText || resumeText.trim().length < 50) {
                 return res.status(400).json({ message: "Could not extract meaningful text from the PDF. Please upload a valid resume." });
             }
+            if (resumeText.length > 30000) {
+                return res.status(413).json({ message: "Resume contains too much text. Please upload a shorter resume." });
+            }
 
             // Generate Embeddings
+            analysisStage = "resume embedding generation";
             const resumeEmbedding = await getEmbedding(resumeText);
 
+            analysisStage = "job description embedding generation";
             const jdEmbedding = await getEmbedding(jd);
+            const matchMethod = resumeEmbedding.source === "huggingface" && jdEmbedding.source === "huggingface"
+                ? "semantic-embedding"
+                : "local-text-overlap";
 
             // Semantic Match Score
-            const similarity = cosineSimilarity(
+            const similarity = Math.max(0, Math.min(1, cosineSimilarity(
                 resumeEmbedding,
                 jdEmbedding
-            );
+            )));
 
             const semanticScore = Number((similarity * 100).toFixed(2));
 
             // AI Skill Extraction
+            analysisStage = "resume skill extraction (Groq)";
             const resumeSkillsResult = await extractSkills(resumeText);
 
+            analysisStage = "job description skill extraction (Groq)";
             const jdSkillsResult = await extractSkills(jd);
 
-            const resumeSkills = resumeSkillsResult.skills || [];
-
-            const jdSkills = jdSkillsResult.skills || [];
-
-            // Matched & Missing Skills
-            const matchedSkills = resumeSkills.filter(
-                (skill) =>
-                    jdSkills.some(
-                        (jdSkill) =>
-                            jdSkill.toLowerCase() === skill.toLowerCase()
-                    )
-            );
-
-            const missingSkills = jdSkills.filter(
-                (skill) =>
-                    !resumeSkills.some(
-                        (resumeSkill) =>
-                            resumeSkill.toLowerCase() ===
-                            skill.toLowerCase()
-                    )
-            );
-
-            // Skill Match Percentage
-            const skillMatchPercent = jdSkills.length > 0
-                ? Number(((matchedSkills.length / jdSkills.length) * 100).toFixed(2))
-                : 0;
+            const {
+                resumeSkills,
+                jdSkills,
+                matchedSkills,
+                missingSkills,
+                skillMatchPercent
+            } = matchSkills(resumeSkillsResult.skills, jdSkillsResult.skills);
 
             // Overall Match Score (weighted: 60% semantic + 40% skill match)
-            const overallScore = Number(
-                (semanticScore * 0.6 + skillMatchPercent * 0.4).toFixed(2)
-            );
+            const overallScore = calculateOverallScore(similarity, skillMatchPercent);
 
             // AI Resume Analysis (strengths, weaknesses, suggestions)
+            analysisStage = "resume feedback generation (Groq)";
             const aiAnalysis = await generateSuggestions(
                 resumeText,
                 jd
@@ -227,15 +149,13 @@ router.post(
                 : { highPriority: [], mediumPriority: [], lowPriority: [] };
 
             // Save Analysis
+            analysisStage = "saving analysis to MongoDB";
             const analysis = new Analysis({
 
                 user: req.user.id,
 
-                resumeText,
-
-                jdText: jd,
-
                 score: semanticScore,
+                matchMethod,
 
                 // Existing DB field
                 missingKeywords: missingSkills,
@@ -276,6 +196,7 @@ router.post(
             res.status(200).json({
 
                 matchScore: semanticScore,
+                matchMethod,
 
                 skillMatchPercent,
 
@@ -318,12 +239,22 @@ router.post(
             });
         } catch (error) {
 
-            console.error("Analysis Error:", error);
+            console.error(`Analysis failed during ${analysisStage}:`, error.message);
 
-            res.status(500).json({
+            const statusCode = error.status || error.response?.status;
+            if (error.publicMessage) {
+                return res.status(statusCode === 429 ? 503 : 502).json({ message: error.publicMessage });
+            }
+            const providerHint = /embedding/i.test(analysisStage)
+                ? " Check that HF_API_KEY is valid and Hugging Face Inference is available."
+                : /Groq/i.test(analysisStage)
+                    ? " Check that GROQ_API_KEY is valid and the selected Groq model is enabled."
+                    : /MongoDB/i.test(analysisStage)
+                        ? " Check the MongoDB connection and database permissions."
+                        : " Check that the uploaded file is a readable PDF.";
 
-                message: "Analysis Failed. Please try again."
-
+            res.status(statusCode === 429 ? 503 : 502).json({
+                message: `Analysis failed during ${analysisStage}.${providerHint}`
             });
 
         }
@@ -344,11 +275,11 @@ router.get(
 
                 user: req.user.id
 
-            }).sort({
+            }).select("-resumeText -jdText").sort({
 
                 createdAt: -1
 
-            });
+            }).lean();
 
             res.status(200).json(history);
 
@@ -378,7 +309,9 @@ router.get(
 
             const analyses = await Analysis.find({
                 user: req.user.id
-            }).sort({ createdAt: -1 });
+            }).select("overallScore score atsScore resumeSkills missingSkills missingKeywords")
+                .sort({ createdAt: -1 })
+                .lean();
 
             if (analyses.length === 0) {
                 return res.status(200).json({

@@ -10,17 +10,23 @@ const analysisSchema = new mongoose.Schema({
 
     resumeText: {
         type: String,
-        required: true
+        select: false
     },
 
     jdText: {
         type: String,
-        required: true
+        select: false
     },
 
     score: {
         type: Number,
         required: true
+    },
+
+    matchMethod: {
+        type: String,
+        enum: ["semantic-embedding", "local-text-overlap"],
+        default: "semantic-embedding"
     },
 
     missingKeywords: {
@@ -117,5 +123,7 @@ const analysisSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+analysisSchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Analysis", analysisSchema);

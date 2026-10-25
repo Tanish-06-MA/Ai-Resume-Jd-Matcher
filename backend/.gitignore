@@ -9,6 +9,9 @@ node_modules/
 # Uploads
 uploads/
 
+# Contains private resume and job-description evaluation data
+evaluation-data.local.json
+
 
 
 

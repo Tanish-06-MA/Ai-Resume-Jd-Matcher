@@ -1,11 +1,29 @@
+require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
 const groq = require("./groq");
-require("dotenv").config();
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+
+function parseModelJson(content) {
+    if (typeof content !== "string" || !content.trim()) {
+        throw new Error("The AI provider returned an empty response.");
+    }
+
+    const cleaned = content.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    if (start < 0 || end < start) throw new Error("The AI provider returned invalid JSON.");
+
+    const parsed = JSON.parse(cleaned.slice(start, end + 1));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("The AI provider returned an unexpected response.");
+    }
+    return parsed;
+}
 
 async function extractSkills(text) {
 
     const response = await groq.chat.completions.create({
 
-        model: "llama-3.3-70b-versatile",
+        model: GROQ_MODEL,
 
         messages: [
             {
@@ -37,13 +55,14 @@ No markdown.
             }
         ],
 
-        temperature: 0
+        temperature: 0,
+        response_format: { type: "json_object" }
 
     });
 
     const result = response.choices[0].message.content;
 
-    return JSON.parse(result);
+    return parseModelJson(result);
 
 }
 
@@ -51,7 +70,7 @@ async function generateSuggestions(resumeText, jdText) {
 
     const response = await groq.chat.completions.create({
 
-        model: "llama-3.3-70b-versatile",
+        model: GROQ_MODEL,
 
         messages: [
 
@@ -113,13 +132,14 @@ ${jdText}`
 
         ],
 
-        temperature:0
+        temperature: 0,
+        response_format: { type: "json_object" }
 
     });
 
     const result = response.choices[0].message.content;
 
-    return JSON.parse(result);
+    return parseModelJson(result);
 
 }
 
@@ -137,7 +157,7 @@ async function generateOverallFeedback({
     weaknesses
 }) {
     const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: GROQ_MODEL,
         messages: [
             {
                 role: "system",
@@ -177,18 +197,19 @@ Weaknesses: ${weaknesses.join(", ")}
 `
             }
         ],
-        temperature: 0.3
+        temperature: 0.3,
+        response_format: { type: "json_object" }
     });
 
     const result = response.choices[0].message.content;
-    return JSON.parse(result);
+    return parseModelJson(result);
 }
 
 // ──────── FEATURE 4: ATS Compatibility Analysis ────────
 
 async function generateATSAnalysis(resumeText, jdText, matchedSkills, missingSkills) {
     const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: GROQ_MODEL,
         messages: [
             {
                 role: "system",
@@ -231,18 +252,19 @@ Missing Skills: ${missingSkills.join(", ")}
 `
             }
         ],
-        temperature: 0.2
+        temperature: 0.2,
+        response_format: { type: "json_object" }
     });
 
     const result = response.choices[0].message.content;
-    return JSON.parse(result);
+    return parseModelJson(result);
 }
 
 // ──────── FEATURE 5: Interview Questions Generator ────────
 
 async function generateInterviewQuestions(resumeText, jdText, skills) {
     const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: GROQ_MODEL,
         messages: [
             {
                 role: "system",
@@ -280,18 +302,19 @@ Skills: ${skills.join(", ")}
 `
             }
         ],
-        temperature: 0.4
+        temperature: 0.4,
+        response_format: { type: "json_object" }
     });
 
     const result = response.choices[0].message.content;
-    return JSON.parse(result);
+    return parseModelJson(result);
 }
 
 // ──────── FEATURE 6: Learning Roadmap ────────
 
 async function generateLearningRoadmap(resumeSkills, jdSkills, missingSkills) {
     const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: GROQ_MODEL,
         messages: [
             {
                 role: "system",
@@ -340,11 +363,12 @@ Missing Skills: ${missingSkills.join(", ")}
 `
             }
         ],
-        temperature: 0.3
+        temperature: 0.3,
+        response_format: { type: "json_object" }
     });
 
     const result = response.choices[0].message.content;
-    return JSON.parse(result);
+    return parseModelJson(result);
 }
 
 module.exports = {

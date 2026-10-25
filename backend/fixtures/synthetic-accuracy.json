@@ -1,0 +1,23 @@
+[
+  {
+    "id": "synthetic-strong",
+    "resumeText": "Backend software engineer building Node.js and Express REST APIs with PostgreSQL, Docker, automated tests, and cloud deployments.",
+    "jdText": "Backend engineer needed to build Node.js Express REST APIs, maintain PostgreSQL databases, deploy with Docker, and write automated tests.",
+    "resumeSkills": ["Node.js", "Express", "REST APIs", "PostgreSQL", "Docker", "Testing"],
+    "jdSkills": ["NodeJS", "Express", "REST API", "PostgreSQL", "Docker", "Testing"]
+  },
+  {
+    "id": "synthetic-partial",
+    "resumeText": "Web developer using JavaScript, Node.js, and Express to build REST APIs. Some experience with SQL and unit testing.",
+    "jdText": "Backend developer using Node.js, Express, PostgreSQL, Docker, Kubernetes, and automated testing to operate production services.",
+    "resumeSkills": ["JavaScript", "Node.js", "Express", "REST APIs", "SQL", "Testing"],
+    "jdSkills": ["NodeJS", "Express", "PostgreSQL", "Docker", "Kubernetes", "Testing"]
+  },
+  {
+    "id": "synthetic-weak",
+    "resumeText": "Graphic designer creating brand identities, print layouts, illustrations, and social media campaigns with Figma and Adobe Illustrator.",
+    "jdText": "Backend developer needed for Node.js, Express, REST APIs, PostgreSQL, Docker, cloud services, and automated testing.",
+    "resumeSkills": ["Figma", "Adobe Illustrator", "Graphic Design", "Brand Identity"],
+    "jdSkills": ["Node.js", "Express", "REST APIs", "PostgreSQL", "Docker", "Cloud", "Testing"]
+  }
+]
